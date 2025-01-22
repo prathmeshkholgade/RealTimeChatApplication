@@ -4,6 +4,7 @@ import { useParams } from "react-router-dom";
 import { getSingleProjectDetaies } from "../app/features/projectSlice";
 import UserModal from "../modal/UserModal";
 import AddCollabModal from "../modal/AddCollabModal";
+import Markdown from "markdown-to-jsx";
 import { connectSocket, receiveMessage, sendMessage } from "../config/socketIo";
 export default function ProjectDetails() {
   const { id } = useParams();
@@ -33,6 +34,11 @@ export default function ProjectDetails() {
       console.log(err);
     }
   };
+  const scrollToBottom = () => {
+    if (messageBox.current) {
+      messageBox.current.scrollTop = messageBox.current.scrollHeight;
+    }
+  };
 
   const appendIncomingMessage = (msgObj) => {
     const msgbox = document.querySelector(".conversation-area");
@@ -49,12 +55,23 @@ export default function ProjectDetails() {
       "w-fit",
       "rounded-md"
     );
-    msg.innerHTML = `
+    console.log(msgObj);
+    if (msgObj.sender._id === "ai") {
+      console.log("mark down msg printing");
+      const markDown = <Markdown>{msgObj.message}</Markdown>;
+      msg.innerHTML = `
+      <small class="opacity-65 text-xs">${msgObj?.sender?.email}</small>
+      <p className="text-sm">${markDown} </p>
+    `;
+    } else {
+      msg.innerHTML = `
       <small class="opacity-65 text-xs">${msgObj?.sender?.email}</small>
       <p class="text-sm">${msgObj.message}</p>
     `;
+    }
 
     msgbox.appendChild(msg);
+    scrollToBottom();
   };
 
   const appendOutGoingMessage = (msgObj) => {
@@ -79,6 +96,7 @@ export default function ProjectDetails() {
     `;
 
     msgbox.appendChild(msg);
+    scrollToBottom();
   };
   useEffect(() => {
     connectSocket(id);
@@ -87,11 +105,12 @@ export default function ProjectDetails() {
       appendIncomingMessage(data);
     });
     getProject();
+    scrollToBottom();
   }, []);
 
   return (
     <div className="h-screen  ">
-      <div className="w-80 bg-slate-300 h-full flex flex-col  relative">
+      <div className="w-96 bg-slate-300 h-full flex flex-col  relative">
         <header className="p-4 bg-slate-200">
           <div className="flex justify-between">
             <button onClick={() => setCollabModal(true)}>
@@ -107,7 +126,7 @@ export default function ProjectDetails() {
 
         <div
           ref={messageBox}
-          className="conversation-area flex-grow h-full p-2"
+          className="conversation-area flex-grow h-full p-2 overflow-y-auto"
         >
           conversation area
           {/* <div className="incoming max-w-56 msg flex flex-col p-2 bg-slate-50 w-fit rounded-md ">

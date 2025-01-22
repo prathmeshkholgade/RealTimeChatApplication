@@ -1,3 +1,14 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+
+.conversation-area {
+    overflow-y: scroll; /* Enable vertical scrolling */
+    scrollbar-width: none; /* For Firefox: hide scrollbar */
+    -ms-overflow-style: none; /* For Internet Explorer and Edge */
+  }
+  
+  .conversation-area::-webkit-scrollbar {
+    display: none; /* For Chrome, Safari, and Edge */
+  }

@@ -5,6 +5,7 @@ import { Server } from "socket.io";
 import jwt from "jsonwebtoken";
 import ExpressError from "./utils/ExpressError.js";
 import Project from "./models/projectModel.js";
+import { getAiResult } from "./service/AiService.js";
 const port = process.env.PORT;
 const server = http.createServer(app);
 
@@ -48,14 +49,29 @@ io.on("connection", (client) => {
 
   client.join(client.roomId);
 
-  client.on("project-message", (data) => {
+  client.on("project-message", async (data) => {
     console.log(data);
+    const message = data.message;
+    const aiIsPresentInMessage = message.includes("@ai");
+    if (aiIsPresentInMessage) {
+      const prompt = message.replace("@ai", " ");
+      const result = await getAiResult(prompt);
+      io.to(client.roomId).emit("project-message", {
+        message: result,
+        sender: {
+          _id: "al",
+          email: "AI",
+        },
+      });
+      return;
+    }
     client.broadcast.to(client.roomId).emit("project-message", data);
   });
 
   // client.on("event", (data) => {});
   client.on("disconnect", () => {
     console.log("user disconnected");
+    client.leave(client.roomId);
     /* … */
   });
 });

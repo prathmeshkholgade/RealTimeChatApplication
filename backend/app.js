@@ -5,7 +5,7 @@ import cookieParser from "cookie-parser";
 import db from "./config/dataBase.js";
 import cors from "cors";
 import projectRouter from "./routes/projectRoutes.js";
-
+import aiRoutes from "./routes/aiRoutes.js";
 const app = express();
 
 const corsOptions = {
@@ -37,6 +37,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use("/user", userRouter);
 app.use("/project", projectRouter);
+app.use("/ai", aiRoutes);
 
 app.get("/", (req, res) => {
   res.send("Hello World");
