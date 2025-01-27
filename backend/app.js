@@ -6,6 +6,7 @@ import db from "./config/dataBase.js";
 import cors from "cors";
 import projectRouter from "./routes/projectRoutes.js";
 import aiRoutes from "./routes/aiRoutes.js";
+
 const app = express();
 
 const corsOptions = {
@@ -13,6 +14,7 @@ const corsOptions = {
   methods: ["GET", "POST", "PUT", "DELETE"],
   credentials: true,
 };
+
 app.use(cors(corsOptions));
 app.use(cookieParser());
 app.use(express.json());

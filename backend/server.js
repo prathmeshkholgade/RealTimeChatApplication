@@ -44,14 +44,12 @@ io.use(async (socket, next) => {
 });
 io.on("connection", (client) => {
   console.log("a user connected");
-
   client.roomId = client.project._id.toString(); // roomID
-
   client.join(client.roomId);
-
   client.on("project-message", async (data) => {
     console.log(data);
     const message = data.message;
+    client.broadcast.to(client.roomId).emit("project-message", data);
     const aiIsPresentInMessage = message.includes("@ai");
     if (aiIsPresentInMessage) {
       const prompt = message.replace("@ai", " ");
@@ -65,7 +63,6 @@ io.on("connection", (client) => {
       });
       return;
     }
-    client.broadcast.to(client.roomId).emit("project-message", data);
   });
 
   // client.on("event", (data) => {});
